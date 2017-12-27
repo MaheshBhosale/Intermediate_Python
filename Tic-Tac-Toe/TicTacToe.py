@@ -227,7 +227,7 @@ class TicTacToeController(Controller):
             if players[flg - 1] == "--JARVIS--":
                 m, n = self.find_best_move()
             else:
-                print "Enter move for player " + str(players[flg - 1]) + "row and column"
+                print "Enter move for player " + str(players[flg - 1]) + " row and column"
                 m = int(raw_input("row:"))
                 n = int(raw_input("col:"))
             print "Next Move " + str(m) + " " + str(n)
