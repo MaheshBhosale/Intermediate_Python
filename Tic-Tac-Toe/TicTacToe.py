@@ -1,11 +1,11 @@
 import sys
 from controller import Controller
 from player import Player
+
 sys.path.append("C:\Users\Swapnil.Walke\Intermediate_Python\Tic-Tac-Toe")
 
 
 class TicTacToeController(Controller):
-
     log_file = "tic_tac_toe.log"
 
     def __init__(self):
@@ -19,8 +19,8 @@ class TicTacToeController(Controller):
                 a.append('_')
             self.board.append(a)
 
-        for i in range(1,9,3):
-            self.matrix.append(range(i, i+3))
+        for i in range(1, 9, 3):
+            self.matrix.append(range(i, i + 3))
         self.logging.info("matrix has been built")
         self.logging.info(str(self.matrix))
 
@@ -81,9 +81,9 @@ class TicTacToeController(Controller):
             a = self.player_two.moves
         winning_moves = []
         for i in range(1, 9, 3):
-            winning_moves.append(range(i, i+3))
+            winning_moves.append(range(i, i + 3))
         for i in range(1, 4):
-            winning_moves.append(range(i, i+7, 3))
+            winning_moves.append(range(i, i + 7, 3))
         winning_moves.append([1, 5, 9])
         winning_moves.append([3, 5, 7])
         for move in winning_moves:
@@ -110,38 +110,37 @@ class TicTacToeController(Controller):
 
     def min_max(self, depth, isMax):
 
-        #Check which player has won and return score accordingly
+        """Check which player has won and return score accordingly"""
         ret, player = self.win(1)
         if ret == True:
             print"Congratulations, player 1 has won!!"
             return -10
 
-        #If no moves left, return score to be 0
-        if ret == False:
+            # If no moves left, return score to be 0
+        if not ret:
             return 0
 
-        #This is Our player bot, and it is maximizer
+            # This is Our player bot, and it is maximizer
         ret, player = self.win(2)
         if ret == True:
             print"Congratulations, player 2 has won!!"
             return 10
 
-        #If this is Maximizer move
-        if(isMax):
+            # If this is Maximizer move
+        if isMax:
             best = -1000
 
-            #Traverse all the cells
+            # Traverse all the cells
             for i in range(0, 3, 1):
                 for j in range(0, 3, 1):
                     if self.board[i][j] == '_':
-
-                        #make the move
+                        # make the move
                         self.board[i][j] = 'X'
 
-                        #Call min_max recursively and find out the maximun value
-                        best = max(best, self.min_max(depth + 1, not(isMax)))
+                        # Call min_max recursively and find out the maximun value
+                        best = max(best, self.min_max(depth + 1, not (isMax)))
 
-                        #Undo the move
+                        # Undo the move
                         self.board[i][j] = '_'
             return best
         else:
@@ -170,20 +169,20 @@ class TicTacToeController(Controller):
             for j in range(0, 3):
                 if self.board[i][j] == '_':
 
-                    #Make the move
+                    # Make the move
                     self.board[i][j] = 'X'
                     move_val = self.min_max(0, False)
 
-                    #Undo the move
+                    # Undo the move
                     self.board[i][j] = '_'
 
-                    #if value of current move > best_value, update
+                    # if value of current move > best_value, update
                     if move_val > best_val:
                         best_val = move_val
                         best_row = i
                         best_col = j
 
-        return (3*(best_row) + best_col + 1)
+        return (3 * (best_row) + best_col + 1)
 
     def check(self, player):
         if player == 2:
@@ -196,7 +195,7 @@ class TicTacToeController(Controller):
                 break
             if len(s) == 1 and ch in s:
                 print "Congratulations! player " + str(player) + " has won the match!"
-                return True,player
+                return True, player
         k = self.board
         for i in range(3):
             for j in range(3):
@@ -207,14 +206,14 @@ class TicTacToeController(Controller):
                 break
             if len(s) == 1 and ch in s:
                 print "Congratulations! player " + str(player) + " has won the match!"
-                return True,player
+                return True, player
         if self.board[2][2] != '_':
             if self.board[0][1] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
                 print "Congratulations! player " + str(player) + " has won the match!"
-                return True,player
+                return True, player
             if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
                 print "Congratulations! player " + str(player) + " has won the match!"
-                return True,player
+                return True, player
         return -1, None
 
     def _play_bot(self):
@@ -225,10 +224,10 @@ class TicTacToeController(Controller):
             self.print_space()
             self.display_board()
             self.print_space()
-            if players[flg-1] == "--JARVIS--":
+            if players[flg - 1] == "--JARVIS--":
                 m, n = self.find_best_move()
             else:
-                print "Enter move for player " + str(players[flg-1]) + "row and column"
+                print "Enter move for player " + str(players[flg - 1]) + "row and column"
                 m = int(raw_input("row:"))
                 n = int(raw_input("col:"))
             print "Next Move " + str(m) + " " + str(n)
@@ -283,7 +282,7 @@ class TicTacToeController(Controller):
                 ch = "O"
             m -= 1
             for i in self.matrix:
-                if (m+1) in i:
+                if (m + 1) in i:
                     m = m % 3
                     i.pop(m)
                     i.insert(m, ch)
