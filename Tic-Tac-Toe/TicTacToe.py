@@ -111,19 +111,17 @@ class TicTacToeController(Controller):
     def min_max(self, depth, isMax):
 
         """Check which player has won and return score accordingly"""
-        ret, player = self.win(1)
-        if ret == True:
-            print"Congratulations, player 1 has won!!"
+        ret, player = self.check(1)
+        if ret:
             return -10
 
             # If no moves left, return score to be 0
-        if not ret:
+        if ret == -1:
             return 0
 
             # This is Our player bot, and it is maximizer
-        ret, player = self.win(2)
-        if ret == True:
-            print"Congratulations, player 2 has won!!"
+        ret, player = self.check(2)
+        if ret:
             return 10
 
             # If this is Maximizer move
@@ -181,8 +179,7 @@ class TicTacToeController(Controller):
                         best_val = move_val
                         best_row = i
                         best_col = j
-
-        return (3 * (best_row) + best_col + 1)
+        return best_row, best_col
 
     def check(self, player):
         if player == 2:
@@ -240,14 +237,14 @@ class TicTacToeController(Controller):
             if self.board[m][n] != '_':
                 print "Invalid Move, already played.."
                 continue
-            if flg == 1:
-                flg = 2
-            else:
-                flg = 1
             if flg == 2:
                 ch = "X"
             else:
                 ch = "O"
+            if flg == 1:
+                flg = 2
+            else:
+                flg = 1
             self.board[m][n] = ch
             ret, player = self.check(1 if flg == 2 else 2)
             if ret is True:
