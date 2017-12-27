@@ -183,7 +183,7 @@ class TicTacToeController(Controller):
                         best_row = i
                         best_col = j
 
-        return (3*(best_row) + best_col + 1)
+        return best_row, best_col
 
     def check(self, player):
         if player == 2:
@@ -241,14 +241,14 @@ class TicTacToeController(Controller):
             if self.board[m][n] != '_':
                 print "Invalid Move, already played.."
                 continue
-            if flg == 1:
-                flg = 2
-            else:
-                flg = 1
             if flg == 2:
                 ch = "X"
             else:
                 ch = "O"
+            if flg == 1:
+                flg = 2
+            else:
+                flg = 1
             self.board[m][n] = ch
             ret, player = self.check(1 if flg == 2 else 2)
             if ret is True:
