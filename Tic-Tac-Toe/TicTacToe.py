@@ -108,21 +108,32 @@ class TicTacToeController(Controller):
         if m in self.player_one.moves or m in self.player_two.moves:
             return -2
 
+    def move_available(self):
+        flg = 0
+        for i in range(0, 3, 1):
+            for j in range(0, 3, 1):
+                if self.board[i][j] == "_":
+                    flg = 1
+                    return flg
+        return flg
+
     def min_max(self, depth, isMax):
 
         """Check which player has won and return score accordingly"""
-        ret, player = self.check(1)
-        if ret:
+        self.display_board()
+        self.print_space()
+        ret, player = self.check(1, True)
+        if ret == 1:
             return -10
 
-            # If no moves left, return score to be 0
-        if ret == -1:
-            return 0
-
             # This is Our player bot, and it is maximizer
-        ret, player = self.check(2)
-        if ret:
+        ret, player = self.check(2, True)
+        if ret == 1:
             return 10
+
+            # Check if there is move available
+        if not self.move_available():
+            return 0
 
             # If this is Maximizer move
         if isMax:
@@ -136,7 +147,8 @@ class TicTacToeController(Controller):
                         self.board[i][j] = 'X'
 
                         # Call min_max recursively and find out the maximun value
-                        best = max(best, self.min_max(depth + 1, not (isMax)))
+                        isMax = 0
+                        best = max(best, self.min_max(depth + 1, isMax))
 
                         # Undo the move
                         self.board[i][j] = '_'
@@ -152,7 +164,8 @@ class TicTacToeController(Controller):
                         self.board[i][j] = 'O'
 
                         # Call min_max recursively and find out the minimum value
-                        best = min(best, self.min_max(depth + 1, not (isMax)))
+                        isMax = 1
+                        best = min(best, self.min_max(depth + 1, isMax))
 
                         # Undo the move
                         self.board[i][j] = '_'
@@ -169,7 +182,7 @@ class TicTacToeController(Controller):
 
                     # Make the move
                     self.board[i][j] = 'X'
-                    move_val = self.min_max(0, False)
+                    move_val = self.min_max(0, 0)
 
                     # Undo the move
                     self.board[i][j] = '_'
@@ -181,7 +194,7 @@ class TicTacToeController(Controller):
                         best_col = j
         return best_row, best_col
 
-    def check(self, player):
+    def check(self, player, recur):
         if player == 2:
             ch = 'X'
         else:
@@ -191,8 +204,9 @@ class TicTacToeController(Controller):
             if '_' in s:
                 break
             if len(s) == 1 and ch in s:
-                print "Congratulations! player " + str(player) + " has won the match!"
-                return True, player
+                if not recur:
+                    print "Congratulations! player " + str(player) + " has won the match!"
+                return 1, player
         k = self.board
         for i in range(3):
             for j in range(3):
@@ -202,15 +216,18 @@ class TicTacToeController(Controller):
             if '_' in s:
                 break
             if len(s) == 1 and ch in s:
-                print "Congratulations! player " + str(player) + " has won the match!"
-                return True, player
+                if not recur:
+                    print "Congratulations! player " + str(player) + " has won the match!"
+                return 1, player
         if self.board[2][2] != '_':
             if self.board[0][1] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
-                print "Congratulations! player " + str(player) + " has won the match!"
-                return True, player
+                if not recur:
+                    print "Congratulations! player " + str(player) + " has won the match!"
+                return 1, player
             if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
-                print "Congratulations! player " + str(player) + " has won the match!"
-                return True, player
+                if not recur:
+                    print "Congratulations! player " + str(player) + " has won the match!"
+                return 1, player
         return -1, None
 
     def _play_bot(self):
@@ -246,8 +263,11 @@ class TicTacToeController(Controller):
             else:
                 flg = 1
             self.board[m][n] = ch
-            ret, player = self.check(1 if flg == 2 else 2)
-            if ret is True:
+            ret, player = self.check(1 if flg == 2 else 2, False)
+            if not self.move_available():
+                print " Match has been draw, play again fools"
+                break
+            if ret == 1:
                 print " Congratulations! Player " + str(player) + " have won the match!"
                 break
 
