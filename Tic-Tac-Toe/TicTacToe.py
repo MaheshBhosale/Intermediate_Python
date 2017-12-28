@@ -1,11 +1,13 @@
+
 import sys
+import copy
 from controller import Controller
 from player import Player
-
 sys.path.append("C:\Users\Swapnil.Walke\Intermediate_Python\Tic-Tac-Toe")
 
 
 class TicTacToeController(Controller):
+
     log_file = "tic_tac_toe.log"
 
     def __init__(self):
@@ -19,8 +21,8 @@ class TicTacToeController(Controller):
                 a.append('_')
             self.board.append(a)
 
-        for i in range(1, 9, 3):
-            self.matrix.append(range(i, i + 3))
+        for i in range(1,9,3):
+            self.matrix.append(range(i, i+3))
         self.logging.info("matrix has been built")
         self.logging.info(str(self.matrix))
 
@@ -81,9 +83,9 @@ class TicTacToeController(Controller):
             a = self.player_two.moves
         winning_moves = []
         for i in range(1, 9, 3):
-            winning_moves.append(range(i, i + 3))
+            winning_moves.append(range(i, i+3))
         for i in range(1, 4):
-            winning_moves.append(range(i, i + 7, 3))
+            winning_moves.append(range(i, i+7, 3))
         winning_moves.append([1, 5, 9])
         winning_moves.append([3, 5, 7])
         for move in winning_moves:
@@ -108,50 +110,72 @@ class TicTacToeController(Controller):
         if m in self.player_one.moves or m in self.player_two.moves:
             return -2
 
-    def move_available(self):
+    def evaluate(self, board):
+
+        # check for rows
+        for i in board:
+            if '_' not in i:
+                s = set(i)
+                if len(s) == 1 and 'X' in s:
+                    return 10
+                elif len(s) == 1 and 'O' in s:
+                    return -10
+        # check for columns
+        for i in range(3):
+            a = []
+            for j in range(3):
+                a.append(board[j][i])
+            if '_' not in a:
+                s = set(a)
+                if len(s) == 1 and 'X' in s:
+                    return 10
+                elif len(s) == 1 and 'O' in s:
+                    return -10
+        # check for diagonals
+        if board[1][1] != '_':
+            if board[0][0] == board[1][1] and board[1][1] == board[2][2]:
+                # print "Congratulations! player " + str(player) + " has won the match!"
+                if board[1][1] == 'X':
+                    return 10
+                else:
+                    return -10
+            if board[0][2] == board[1][1] and board[1][1] == board[2][0]:
+                # print "Congratulations! player " + str(player) + " has won the match!"
+                if board[1][1] == 'X':
+                    return 10
+                else:
+                    return -10
         flg = 0
-        for i in range(0, 3, 1):
-            for j in range(0, 3, 1):
-                if self.board[i][j] == "_":
-                    flg = 1
-                    return flg
-        return flg
-
-    def min_max(self, depth, isMax):
-
-        """Check which player has won and return score accordingly"""
-        self.display_board()
-        self.print_space()
-        ret, player = self.check(1, True)
-        if ret == 1:
-            return -10
-
-            # This is Our player bot, and it is maximizer
-        ret, player = self.check(2, True)
-        if ret == 1:
-            return 10
-
-            # Check if there is move available
-        if not self.move_available():
+        for i in board:
+            if '_' in i:
+                flg = 1
+        if flg == 0:
             return 0
 
-            # If this is Maximizer move
-        if isMax:
+    def min_max(self, board, depth, isMax):
+
+        # Check which player has won and return score accordingly
+        score = self.evaluate(board)
+        if score == 10 or score == -10 or score == 0:
+            return score
+
+        # If this is Maximizer move
+        if(isMax):
             best = -1000
 
             # Traverse all the cells
             for i in range(0, 3, 1):
                 for j in range(0, 3, 1):
-                    if self.board[i][j] == '_':
+                    if board[i][j] == '_':
+
                         # make the move
-                        self.board[i][j] = 'X'
+                        board[i][j] = 'X'
 
                         # Call min_max recursively and find out the maximun value
-                        isMax = 0
-                        best = max(best, self.min_max(depth + 1, isMax))
+                        best = max(best, self.min_max(copy.deepcopy(board), depth + 1, not(isMax)))
 
                         # Undo the move
-                        self.board[i][j] = '_'
+                        board[i][j] = '_'
             return best
         else:
             best = 1000
@@ -159,75 +183,73 @@ class TicTacToeController(Controller):
             # Traverse all the cells
             for i in range(0, 3, 1):
                 for j in range(0, 3, 1):
-                    if self.board[i][j] == '_':
+                    if board[i][j] == '_':
                         # make the move
-                        self.board[i][j] = 'O'
+                        board[i][j] = 'O'
 
                         # Call min_max recursively and find out the minimum value
-                        isMax = 1
-                        best = min(best, self.min_max(depth + 1, isMax))
+                        best = min(best, self.min_max(copy.deepcopy(board), depth + 1, not (isMax)))
 
                         # Undo the move
-                        self.board[i][j] = '_'
+                        board[i][j] = '_'
             return best
 
-    def find_best_move(self):
+    def find_best_move(self, board):
         best_val = -1000
         best_row = -1
         best_col = -1
 
         for i in range(0, 3):
             for j in range(0, 3):
-                if self.board[i][j] == '_':
+                if board[i][j] == '_':
 
                     # Make the move
-                    self.board[i][j] = 'X'
-                    move_val = self.min_max(0, 0)
+                    board[i][j] = 'X'
+                    move_val = self.min_max(copy.deepcopy(board), 0, False)
 
                     # Undo the move
-                    self.board[i][j] = '_'
+                    board[i][j] = '_'
 
                     # if value of current move > best_value, update
                     if move_val > best_val:
                         best_val = move_val
                         best_row = i
                         best_col = j
+
         return best_row, best_col
 
-    def check(self, player, recur):
+    def check(self, player):
         if player == 2:
             ch = 'X'
         else:
             ch = 'O'
+        # check for rows
         for i in self.board:
-            s = set(i)
-            if '_' in s:
-                break
-            if len(s) == 1 and ch in s:
-                if not recur:
-                    print "Congratulations! player " + str(player) + " has won the match!"
-                return 1, player
-        k = self.board
+            if '_' not in i:
+                s = set(i)
+                if len(s) == 1 and ch in s:
+                    return True, player
+        # check for columns
         for i in range(3):
+            a = []
             for j in range(3):
-                k[j][i] = self.board[i][j]
-        for i in k:
-            s = set(i)
-            if '_' in s:
-                break
-            if len(s) == 1 and ch in s:
-                if not recur:
-                    print "Congratulations! player " + str(player) + " has won the match!"
-                return 1, player
-        if self.board[2][2] != '_':
-            if self.board[0][1] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
-                if not recur:
-                    print "Congratulations! player " + str(player) + " has won the match!"
-                return 1, player
+                a.append(self.board[j][i])
+            if '_' not in a:
+                s = set(a)
+                if len(s) == 1 and ch in s:
+                    return True, player
+        # check for diagonals
+        if self.board[1][1] != '_':
+            if self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
+                return True, player
             if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
-                if not recur:
-                    print "Congratulations! player " + str(player) + " has won the match!"
-                return 1, player
+                return True, player
+        flg = 1
+        for i in self.board:
+            if '_' in i:
+                flg = 0
+        if flg == 1:
+            return False, "draw"
         return -1, None
 
     def _play_bot(self):
@@ -238,13 +260,14 @@ class TicTacToeController(Controller):
             self.print_space()
             self.display_board()
             self.print_space()
-            if players[flg - 1] == "--JARVIS--":
-                m, n = self.find_best_move()
+            if players[flg-1] == "--JARVIS--":
+                print "Let JARVIS play...."
+                m, n = self.find_best_move(copy.deepcopy(self.board))
             else:
-                print "Enter move for player " + str(players[flg - 1]) + " row and column"
+                print "Enter move for player " + str(players[flg-1]) + "row and column"
                 m = int(raw_input("row:"))
                 n = int(raw_input("col:"))
-            print "Next Move " + str(m) + " " + str(n)
+            print str(m) + " " + str(n)
             if m < 0 or m > 3:
                 print "Invalid Move!"
                 continue
@@ -258,17 +281,17 @@ class TicTacToeController(Controller):
                 ch = "X"
             else:
                 ch = "O"
+            self.board[m][n] = ch
+            ret, player = self.check(flg)
             if flg == 1:
                 flg = 2
             else:
                 flg = 1
-            self.board[m][n] = ch
-            ret, player = self.check(1 if flg == 2 else 2, False)
-            if not self.move_available():
-                print " Match has been draw, play again fools"
-                break
-            if ret == 1:
+            if ret is True:
                 print " Congratulations! Player " + str(player) + " have won the match!"
+                break
+            if ret is False and player == "draw":
+                print "Match has been drawn!"
                 break
 
     def _play(self):
@@ -299,7 +322,7 @@ class TicTacToeController(Controller):
                 ch = "O"
             m -= 1
             for i in self.matrix:
-                if (m + 1) in i:
+                if (m+1) in i:
                     m = m % 3
                     i.pop(m)
                     i.insert(m, ch)
