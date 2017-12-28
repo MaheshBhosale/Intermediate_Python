@@ -159,7 +159,13 @@ class TicTacToeController(Controller):
 
         # Check which player has won and return score accordingly
         score = self.evaluate(board)
-        if score == 10 or score == -10 or score == 0:
+        if score == 10:
+            return score - depth
+
+        if score == -10:
+            return score + depth
+
+        if score == 0:
             return score
 
         # If this is Maximizer move
