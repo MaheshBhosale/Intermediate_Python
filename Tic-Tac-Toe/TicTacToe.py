@@ -97,6 +97,7 @@ class TicTacToeController(Controller):
             if flg:
                 return True, player
         if len(self.player_one.moves) + len(self.player_two.moves) == 9:
+            self.display_board()
             print " Games is drawn"
             self.logging.debug("Game is draw, nobody won")
             self.logging.debug("Enjoy the game again :)")
@@ -268,10 +269,10 @@ class TicTacToeController(Controller):
                 m = int(raw_input("row:"))
                 n = int(raw_input("col:"))
             print str(m) + " " + str(n)
-            if m < 0 or m > 3:
+            if m < 0 or m > 2:
                 print "Invalid Move!"
                 continue
-            if n < 0 or n > 3:
+            if n < 0 or n > 2:
                 print "Invalid Move!"
                 continue
             if self.board[m][n] != '_':
@@ -288,9 +289,11 @@ class TicTacToeController(Controller):
             else:
                 flg = 1
             if ret is True:
+                self.display_board()
                 print " Congratulations! Player " + str(player) + " have won the match!"
                 break
             if ret is False and player == "draw":
+                self.display_board()
                 print "Match has been drawn!"
                 break
 
