@@ -1,3 +1,4 @@
+
 import sys
 import copy
 from controller import Controller
@@ -192,6 +193,7 @@ class TicTacToeController(Controller):
 
                         # Undo the move
                         board[i][j] = '_'
+
                         palpha = alpha
                         alpha = max(best, alpha)
             return best
@@ -220,7 +222,6 @@ class TicTacToeController(Controller):
 
                         pbeta = beta
                         beta = min(best, beta)
-
             return best
 
     def find_best_move(self, board):
